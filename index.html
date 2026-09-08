@@ -132,29 +132,32 @@
             font-size: 12px;
             font-weight: bold;
             border: 1px solid #1fa370;
+            display: inline-block;
         }
 
         .partner { top: 10px; left: 50%; transform: translateX(-50%); }
-        .left-opp { left: 10px; top: 40%; transform: translateY(-50%); }
-        .right-opp { right: 10px; top: 40%; transform: translateY(-50%); }
+        .left-opp { left: 8px; top: 35%; transform: translateY(-50%); }
+        .right-opp { right: 8px; top: 35%; transform: translateY(-50%); }
 
         .card-backs {
             display: flex;
-            gap: 3px;
+            gap: 2px;
             margin-top: 5px;
             justify-content: center;
         }
 
         .card-back-item {
-            width: 14px;
-            height: 22px;
+            width: 12px;
+            height: 18px;
             background: #1b4985;
             border: 1px solid #ffffff;
             border-radius: 2px;
         }
 
         .card-backs.vertical {
-            flex-direction: column;
+            flex-direction: row;
+            max-width: 110px;
+            flex-wrap: wrap;
         }
 
         /* Middle Play Area */
@@ -413,8 +416,8 @@
         let lastTrickData = null;
         let waitingForTouchToClear = false;
         let tricksWon = [0, 0];
-        let tokens = [0, 0]; // Team 0 (User & Notiya), Team 1 (Sandu & Nima)
-        let carriedKeta = 0; // Extra Keta from Saporu
+        let tokens = [0, 0];
+        let carriedKeta = 0;
         let isProcessingTurn = false;
         let pendingWinner = null;
 
@@ -642,17 +645,14 @@
             waitingForTouchToClear = false;
 
             if (hands[0].length === 0) {
-                // Round Over - Calculate Keta based on Omi Rules
                 const team0CalledTrump = (trumpChooser === 0 || trumpChooser === 2);
                 const team1CalledTrump = (trumpChooser === 1 || trumpChooser === 3);
 
                 if (tricksWon[0] === 4 && tricksWon[1] === 4) {
-                    // SAPORU (Tie 4-4)
                     carriedKeta++;
                     alert(`මෙම වටය සපෝරු විය! (අත් 4 - 4)\nකිසිදු පිලකට කැට හිමි නොවේ.\nමීළඟ වටය දිනන පිලට වැඩිපුර කැට ${carriedKeta}ක් එකතු වේ!`);
                 } else if (tricksWon[0] > tricksWon[1]) {
-                    // Team 0 Won (User & Notiya)
-                    const baseKeta = team0CalledTrump ? 1 : 2; // 1 if called trump, 2 for Kapathi
+                    const baseKeta = team0CalledTrump ? 1 : 2;
                     const totalEarned = baseKeta + carriedKeta;
                     tokens[0] += totalEarned;
 
@@ -661,10 +661,9 @@
                     if (carriedKeta > 0) msg += ` (සපෝරු කැට +${carriedKeta} ඇතුළුව)`;
                     alert(msg);
 
-                    carriedKeta = 0; // Reset carried keta
+                    carriedKeta = 0;
                 } else {
-                    // Team 1 Won (Sandu & Nima)
-                    const baseKeta = team1CalledTrump ? 1 : 2; // 1 if called trump, 2 for Kapathi
+                    const baseKeta = team1CalledTrump ? 1 : 2;
                     const totalEarned = baseKeta + carriedKeta;
                     tokens[1] += totalEarned;
 
@@ -673,15 +672,13 @@
                     if (carriedKeta > 0) msg += ` (සපෝරු කැට +${carriedKeta} ඇතුළුව)`;
                     alert(msg);
 
-                    carriedKeta = 0; // Reset carried keta
+                    carriedKeta = 0;
                 }
 
-                // Update Tokens UI
                 document.getElementById('team1-tokens').innerText = tokens[0];
                 document.getElementById('team2-tokens').innerText = tokens[1];
                 document.getElementById('saporu-info').innerText = carriedKeta;
 
-                // Check for Game Winner (10 Keta limit)
                 if (tokens[0] >= 10 || tokens[1] >= 10) {
                     if (tokens[0] >= 10) {
                         alert(`🎉 සුබ පැතුම්! ඔබ සහ Notiya කැට ${tokens[0]} - ${tokens[1]} ක් ලෙස සමස්ත තරඟය ජයග්‍රහණය කළා!`);
@@ -689,7 +686,6 @@
                         alert(`😞 Sandu සහ Nima කැට ${tokens[1]} - ${tokens[0]} ක් ලෙස සමස්ත තරඟය ජයග්‍රහණය කළා!`);
                     }
                     
-                    // Reset game for a new match
                     tokens = [0, 0];
                     carriedKeta = 0;
                     document.getElementById('team1-tokens').innerText = '0';
@@ -740,4 +736,4 @@
         window.onload = initGame;
     </script>
 </body>
-    </html>
+                </html>
