@@ -6,7 +6,7 @@ NR Creation
 
 <br>
 
-[![Play Game](https://img.shields.io/badge/🎮_PLAY_OMI_GAME-CLICK_HERE-2ea44f?style=for-the-badge&logo=gamepad&logoColor=white)](https://notiyareal.github.io/Omi-sinhala/)
+[![Play Game](https://img.shields.io/badge/🎮_PLAY_OMI_GAME-අතක්_ගහමු_🌚-2ea44f?style=for-the-badge&logo=gamepad&logoColor=white)](https://notiyareal.github.io/Omi-sinhala/)
 
 <br><br>
 
