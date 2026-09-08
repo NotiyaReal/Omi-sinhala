@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMI Card Game</title>
+    <title>NR OMI Card Game</title>
     <style>
         * {
             box-sizing: border-box;
@@ -314,7 +314,7 @@
     <div class="game-container">
         <!-- Top Score Bar -->
         <div class="header-card">
-            <div class="trophy-title">🏆 OMI CARD GAME</div>
+            <div class="trophy-title">🏆 NR OMI CARD GAME</div>
             <div class="tokens-info">
                 Tokens - ඔබ & Notiya: <span id="team1-tokens">0</span> | Sandu & Nima: <span id="team2-tokens">0</span>
             </div>
@@ -388,7 +388,6 @@
         const SUITS = ['SPADES', 'HEARTS', 'DIAMONDS', 'CLUBS'];
         const SUIT_SYMBOLS = { SPADES: '♠', HEARTS: '♥', DIAMONDS: '♦', CLUBS: '♣' };
         
-        // Correct OMI Rank Hierarchy: 7 < 8 < 9 < 10 < J < Q < K < A
         const RANKS = ['7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
         const RANK_VALUES = { '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14 };
         
@@ -474,13 +473,12 @@
         }
 
         function renderHands() {
-            // Sort user cards: Grouped by suit, ordered High to Low (A -> 7)
             const suitPriority = { 'SPADES': 1, 'HEARTS': 2, 'DIAMONDS': 3, 'CLUBS': 4 };
             hands[0].sort((a, b) => {
                 if (suitPriority[a.suit] !== suitPriority[b.suit]) {
                     return suitPriority[a.suit] - suitPriority[b.suit];
                 }
-                return b.val - a.val; // Descending order by rank value
+                return b.val - a.val;
             });
 
             const userContainer = document.getElementById('user-cards');
@@ -527,7 +525,7 @@
             }
 
             if (currentPlayer === 0) {
-                updateStatus(`ඔබේ වාරය! (${trumpSuit} ${SUIT_SYMBOLS[trumpSuit]} පාරක් දමන්න)`);
+                updateStatus(`ඔබේ වාරය! (තුරුම්පු ${trumpSuit} ${SUIT_SYMBOLS[trumpSuit]}) කොළයක් දමන්න`);
             } else {
                 isProcessingTurn = true;
                 updateStatus(`${PLAYER_NAMES[currentPlayer]} කොළයක් දමමින් සිටී...`);
@@ -544,7 +542,7 @@
                 const leadSuit = currentTrick[0].card.suit;
                 const hasLeadSuit = hands[0].some(c => c.suit === leadSuit);
                 if (hasLeadSuit && card.suit !== leadSuit) {
-                    alert(`ඔබ මුලින් දැමූ පාට (${leadSuit}) දැමිය යුතුය!`);
+                    alert(`ඔබ මුලින් දැමූ වංශයට (${leadSuit}) දැමිය යුතුය!`);
                     return;
                 }
             }
@@ -685,4 +683,4 @@
         window.onload = initGame;
     </script>
 </body>
-</html>.
+</html>
