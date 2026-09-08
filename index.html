@@ -52,6 +52,12 @@
             font-size: 13px;
         }
 
+        .saporu-info-bar {
+            font-size: 11px;
+            color: #ffeb3b;
+            margin-top: 4px;
+        }
+
         .status-bar {
             display: flex;
             justify-content: space-between;
@@ -314,15 +320,18 @@
     <div class="game-container">
         <!-- Top Score Bar -->
         <div class="header-card">
-            <div class="trophy-title">🏆 NR OMI CARD GAME</div>
+            <div class="trophy-title">🏆 NR OMI CARD GAME (කැට 10)</div>
             <div class="tokens-info">
-                Tokens - ඔබ & Notiya: <span id="team1-tokens">0</span> | Sandu & Nima: <span id="team2-tokens">0</span>
+                කැට - ඔබ & Notiya: <span id="team1-tokens">0</span> | Sandu & Nima: <span id="team2-tokens">0</span>
+            </div>
+            <div class="saporu-info-bar">
+                එකතු වූ සපෝරු කැට: <span id="saporu-info">0</span>
             </div>
         </div>
 
         <div class="status-bar">
             <div class="tricks-count">
-                Tricks - ඔබලා: <span id="tricks-us">0</span> | ඔවුන්: <span id="tricks-them">0</span>
+                අත් - ඔබලා: <span id="tricks-us">0</span> | ඔවුන්: <span id="tricks-them">0</span>
             </div>
             <div class="trump-info">
                 Trump: <span id="trump-display">NONE</span>
@@ -331,7 +340,7 @@
         </div>
 
         <div class="message-box" id="status-msg">
-            📢 ක්‍රීඩාව ආරම්භ වේ...
+            📢 තරඟය ආරම්භ වේ...
         </div>
 
         <!-- Main Board Table -->
@@ -404,7 +413,8 @@
         let lastTrickData = null;
         let waitingForTouchToClear = false;
         let tricksWon = [0, 0];
-        let tokens = [0, 0];
+        let tokens = [0, 0]; // Team 0 (User & Notiya), Team 1 (Sandu & Nima)
+        let carriedKeta = 0; // Extra Keta from Saporu
         let isProcessingTurn = false;
         let pendingWinner = null;
 
@@ -632,15 +642,62 @@
             waitingForTouchToClear = false;
 
             if (hands[0].length === 0) {
-                if (tricksWon[0] > tricksWon[1]) {
-                    tokens[0]++;
-                    document.getElementById('team1-tokens').innerText = tokens[0];
-                    alert("ඔබගේ පිල මෙම වටය ජයග්‍රහණය කළා!");
+                // Round Over - Calculate Keta based on Omi Rules
+                const team0CalledTrump = (trumpChooser === 0 || trumpChooser === 2);
+                const team1CalledTrump = (trumpChooser === 1 || trumpChooser === 3);
+
+                if (tricksWon[0] === 4 && tricksWon[1] === 4) {
+                    // SAPORU (Tie 4-4)
+                    carriedKeta++;
+                    alert(`මෙම වටය සපෝරු විය! (අත් 4 - 4)\nකිසිදු පිලකට කැට හිමි නොවේ.\nමීළඟ වටය දිනන පිලට වැඩිපුර කැට ${carriedKeta}ක් එකතු වේ!`);
+                } else if (tricksWon[0] > tricksWon[1]) {
+                    // Team 0 Won (User & Notiya)
+                    const baseKeta = team0CalledTrump ? 1 : 2; // 1 if called trump, 2 for Kapathi
+                    const totalEarned = baseKeta + carriedKeta;
+                    tokens[0] += totalEarned;
+
+                    let msg = `ඔබගේ පිල මෙම වටය ජයග්‍රහණය කළා!\nලැබුණු කැට ගණන: ${totalEarned}`;
+                    if (!team0CalledTrump) msg += ` (කපෝති දිනුම!)`;
+                    if (carriedKeta > 0) msg += ` (සපෝරු කැට +${carriedKeta} ඇතුළුව)`;
+                    alert(msg);
+
+                    carriedKeta = 0; // Reset carried keta
                 } else {
-                    tokens[1]++;
-                    document.getElementById('team2-tokens').innerText = tokens[1];
-                    alert("ඉදිරි පිල මෙම වටය ජයග්‍රහණය කළා!");
+                    // Team 1 Won (Sandu & Nima)
+                    const baseKeta = team1CalledTrump ? 1 : 2; // 1 if called trump, 2 for Kapathi
+                    const totalEarned = baseKeta + carriedKeta;
+                    tokens[1] += totalEarned;
+
+                    let msg = `ඉදිරි පිල (Sandu & Nima) මෙම වටය ජයග්‍රහණය කළා!\nලැබුණු කැට ගණන: ${totalEarned}`;
+                    if (!team1CalledTrump) msg += ` (කපෝති දිනුම!)`;
+                    if (carriedKeta > 0) msg += ` (සපෝරු කැට +${carriedKeta} ඇතුළුව)`;
+                    alert(msg);
+
+                    carriedKeta = 0; // Reset carried keta
                 }
+
+                // Update Tokens UI
+                document.getElementById('team1-tokens').innerText = tokens[0];
+                document.getElementById('team2-tokens').innerText = tokens[1];
+                document.getElementById('saporu-info').innerText = carriedKeta;
+
+                // Check for Game Winner (10 Keta limit)
+                if (tokens[0] >= 10 || tokens[1] >= 10) {
+                    if (tokens[0] >= 10) {
+                        alert(`🎉 සුබ පැතුම්! ඔබ සහ Notiya කැට ${tokens[0]} - ${tokens[1]} ක් ලෙස සමස්ත තරඟය ජයග්‍රහණය කළා!`);
+                    } else {
+                        alert(`😞 Sandu සහ Nima කැට ${tokens[1]} - ${tokens[0]} ක් ලෙස සමස්ත තරඟය ජයග්‍රහණය කළා!`);
+                    }
+                    
+                    // Reset game for a new match
+                    tokens = [0, 0];
+                    carriedKeta = 0;
+                    document.getElementById('team1-tokens').innerText = '0';
+                    document.getElementById('team2-tokens').innerText = '0';
+                    document.getElementById('saporu-info').innerText = '0';
+                    currentRound = 0;
+                }
+
                 currentRound++;
                 trumpChooser = (trumpChooser + 1) % 4;
                 initGame();
@@ -683,4 +740,4 @@
         window.onload = initGame;
     </script>
 </body>
-</html>
+    </html>
