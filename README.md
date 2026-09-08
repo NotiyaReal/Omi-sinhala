@@ -6,7 +6,7 @@ NR Creation
 
 <br>
 
-[![PLAY GAME](https://img.shields.io/badge/🎮%20PLAY%20GAME-Click%20Here-success?style=for-the-badge)](https://notiyareal.github.io/omi-sinhala/)
+[![Play Game](https://img.shields.io/badge/🎮_PLAY_OMI_GAME-CLICK_HERE-2ea44f?style=for-the-badge&logo=gamepad&logoColor=white)](https://notiyareal.github.io/Omi-sinhala/)
 
 <br><br>
 
@@ -19,4 +19,4 @@ NR Creation
 
 ### ▶️ PLAY NOW
 
-**[🎮 CLICK HERE TO PLAY](https://notiyareal.github.io/omi-sinhala/)**
+
