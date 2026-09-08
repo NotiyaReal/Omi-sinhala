@@ -30,6 +30,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
         }
 
         /* Header UI */
@@ -240,11 +241,15 @@
             transform: translateY(-50%);
         }
 
-        /* User Hand */
+        /* User Hand (Elevated above Overlay for clear view) */
         .user-hand-wrapper {
             background: #083825;
             padding: 10px;
             border-radius: 12px;
+            position: relative;
+            z-index: 105;
+            border: 1px solid #147a52;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
         }
 
         .hand-title {
@@ -284,7 +289,7 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.35); /* Translucent so cards underneath remain fully visible */
             display: none;
             justify-content: center;
             align-items: center;
@@ -299,6 +304,7 @@
             border: 2px solid #20a16e;
             width: 85%;
             max-width: 320px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
         }
 
         .suit-options {
@@ -317,6 +323,10 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 14px;
+        }
+
+        .suit-options button.red-suit {
+            color: #ff5555;
         }
 
         .last-trick-grid {
@@ -406,8 +416,8 @@
             <h3 style="margin-bottom: 10px;">තුරුම්පු (Trump) තෝරන්න!</h3>
             <div class="suit-options">
                 <button onclick="userSelectTrump('SPADES')">♠ SPADES</button>
-                <button onclick="userSelectTrump('HEARTS')">♥ HEARTS</button>
-                <button onclick="userSelectTrump('DIAMONDS')">♦ DIAMONDS</button>
+                <button class="red-suit" onclick="userSelectTrump('HEARTS')">♥ HEARTS</button>
+                <button class="red-suit" onclick="userSelectTrump('DIAMONDS')">♦ DIAMONDS</button>
                 <button onclick="userSelectTrump('CLUBS')">♣ CLUBS</button>
             </div>
         </div>
@@ -763,4 +773,4 @@
         window.onload = initGame;
     </script>
 </body>
-    </html>
+                </html>
