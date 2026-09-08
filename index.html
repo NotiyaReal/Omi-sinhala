@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMI Card Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Top Score Bar -->
+        <div class="header-card">
+            <div class="trophy-title">🏆 OMI CARD GAME</div>
+            <div class="tokens-info">
+                Tokens - ඔබ & Notiya: <span id="team1-tokens">0</span> | Sandu & Nima: <span id="team2-tokens">0</span>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="tricks-count">
+                Tricks - ඔබලා: <span id="tricks-us">0</span> | ඔවුන්: <span id="tricks-them">0</span>
+            </div>
+            <div class="trump-info">
+                Trump: <span id="trump-display">NONE</span>
+            </div>
+        </div>
+
+        <div class="message-box" id="status-msg">
+            📢 ක්‍රීඩාව ආරම්භ වේ...
+        </div>
+
+        <!-- Main Board Table -->
+        <div class="game-table">
+            <!-- Top Player (Notiya) -->
+            <div class="player-slot partner">
+                <span class="player-label">Notiya (Partner)</span>
+                <div class="card-backs" id="cards-partner"></div>
+            </div>
+
+            <!-- Left Player (Nima) -->
+            <div class="player-slot left-opp">
+                <span class="player-label">Nima</span>
+                <div class="card-backs vertical" id="cards-left"></div>
+            </div>
+
+            <!-- Right Player (Sandu) -->
+            <div class="player-slot right-opp">
+                <span class="player-label">Sandu</span>
+                <div class="card-backs vertical" id="cards-right"></div>
+            </div>
+
+            <!-- Middle Cards Drop Area (Green Box Alignment) -->
+            <div class="center-play-area" id="center-area">
+                <!-- Played cards will appear here dynamically -->
+            </div>
+        </div>
+
+        <!-- Real Player Hand (Bottom) -->
+        <div class="user-hand-wrapper">
+            <div class="hand-title" id="user-hand-title">ඔබේ කොළ (0)</div>
+            <div class="user-cards" id="user-cards"></div>
+        </div>
+    </div>
+
+    <!-- Trump Selection Modal for First Round -->
+    <div class="modal-overlay" id="trump-modal">
+        <div class="modal-content">
+            <h3>තුරුම්පු (Trump) තෝරන්න!</h3>
+            <div class="suit-options">
+                <button onclick="userSelectTrump('SPADES')">♠ SPADES</button>
+                <button onclick="userSelectTrump('HEARTS')">♥ HEARTS</button>
+                <button onclick="userSelectTrump('DIAMONDS')">♦ DIAMONDS</button>
+                <button onclick="userSelectTrump('CLUBS')">♣ CLUBS</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+  </html>
