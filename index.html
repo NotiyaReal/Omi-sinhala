@@ -56,14 +56,15 @@
             display: flex;
             justify-content: space-between;
             margin-top: 8px;
-            gap: 8px;
+            gap: 6px;
+            align-items: center;
         }
 
         .tricks-count, .trump-info {
             background: #083825;
-            padding: 8px 12px;
+            padding: 8px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             flex: 1;
             text-align: center;
@@ -71,6 +72,17 @@
 
         .trump-info {
             color: #4cd995;
+        }
+
+        .btn-last-trick {
+            background: #106343;
+            color: #ffcc00;
+            border: 1px solid #1fa370;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         .message-box {
@@ -81,16 +93,30 @@
             text-align: center;
             font-size: 13px;
             margin-top: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .message-box.tap-notice {
+            background: #b8860b;
+            color: #000;
+            font-weight: bold;
+            animation: blink 1s infinite alternate;
+        }
+
+        @keyframes blink {
+            from { opacity: 0.8; }
+            to { opacity: 1; }
         }
 
         /* Table Area */
         .game-table {
             position: relative;
-            height: 340px;
+            height: 330px;
             margin: 10px 0;
             border-radius: 16px;
             background: #093f2a;
             border: 2px solid #0f5c3e;
+            cursor: pointer;
         }
 
         .player-slot {
@@ -131,20 +157,20 @@
             flex-direction: column;
         }
 
-        /* Middle Play Area (Fixing Positions to Match Green Boxes) */
+        /* Middle Play Area */
         .center-play-area {
             position: absolute;
-            top: 52%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 210px;
-            height: 210px;
+            width: 200px;
+            height: 200px;
         }
 
         .played-card {
             position: absolute;
-            width: 58px;
-            height: 85px;
+            width: 54px;
+            height: 80px;
             background: white;
             color: black;
             border-radius: 6px;
@@ -156,12 +182,10 @@
             font-weight: bold;
             font-size: 14px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: all 0.2s ease-in-out;
         }
 
         .played-card.red { color: #d00; }
 
-        /* Exact Positions for Each Player's Played Card */
         .played-card.pos-user {
             bottom: 0px;
             left: 50%;
@@ -208,8 +232,8 @@
         }
 
         .hand-card {
-            width: 52px;
-            height: 78px;
+            width: 50px;
+            height: 75px;
             background: white;
             color: black;
             border-radius: 6px;
@@ -225,13 +249,12 @@
         }
 
         .hand-card.red { color: #d00; }
-        .hand-card:hover { transform: translateY(-4px); }
 
-        /* Trump Modal */
+        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0, 0, 0, 0.85);
             display: none;
             justify-content: center;
             align-items: center;
@@ -266,8 +289,31 @@
             font-size: 14px;
         }
 
-        .suit-options button:hover {
-            background: #1fa370;
+        /* Last Trick Display Grid */
+        .last-trick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .last-trick-item {
+            background: #083825;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #147a52;
+            font-size: 12px;
+        }
+
+        .btn-close {
+            background: #c0392b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -288,6 +334,7 @@
             <div class="trump-info">
                 Trump: <span id="trump-display">NONE</span>
             </div>
+            <button class="btn-last-trick" onclick="showLastTrick()">👁️ පසුගිය අත</button>
         </div>
 
         <div class="message-box" id="status-msg">
@@ -295,30 +342,26 @@
         </div>
 
         <!-- Main Board Table -->
-        <div class="game-table">
-            <!-- Top Player (Notiya) -->
+        <div class="game-table" onclick="handleTableClick()">
             <div class="player-slot partner">
                 <span class="player-label">Notiya (Partner)</span>
                 <div class="card-backs" id="cards-partner"></div>
             </div>
 
-            <!-- Left Player (Nima) -->
             <div class="player-slot left-opp">
                 <span class="player-label">Nima</span>
                 <div class="card-backs vertical" id="cards-left"></div>
             </div>
 
-            <!-- Right Player (Sandu) -->
             <div class="player-slot right-opp">
                 <span class="player-label">Sandu</span>
                 <div class="card-backs vertical" id="cards-right"></div>
             </div>
 
-            <!-- Middle Cards Drop Area -->
             <div class="center-play-area" id="center-area"></div>
         </div>
 
-        <!-- Real Player Hand (Bottom) -->
+        <!-- Real Player Hand -->
         <div class="user-hand-wrapper">
             <div class="hand-title" id="user-hand-title">ඔබේ කොළ (0)</div>
             <div class="user-cards" id="user-cards"></div>
@@ -326,9 +369,9 @@
     </div>
 
     <!-- Trump Selection Modal -->
-    <div class="modal-overlay" id="trump-modal">
+    <div class="modal-overlay" id="trump-modal" style="display: none;">
         <div class="modal-content">
-            <h3>තුරුම්පු (Trump) තෝරන්න!</h3>
+            <h3 style="margin-bottom: 10px;">තුරුම්පු (Trump) තෝරන්න!</h3>
             <div class="suit-options">
                 <button onclick="userSelectTrump('SPADES')">♠ SPADES</button>
                 <button onclick="userSelectTrump('HEARTS')">♥ HEARTS</button>
@@ -338,25 +381,38 @@
         </div>
     </div>
 
+    <!-- Last Trick Modal -->
+    <div class="modal-overlay" id="last-trick-modal" style="display: none;">
+        <div class="modal-content">
+            <h3>👁️ පසුගිය වටයේ වැටුණු කොළ</h3>
+            <div class="last-trick-grid" id="last-trick-cards"></div>
+            <div id="last-trick-winner" style="font-weight: bold; color: #ffcc00; margin-bottom: 5px;"></div>
+            <button class="btn-close" onclick="closeLastTrickModal()">වසා දමන්න</button>
+        </div>
+    </div>
+
     <script>
         const SUITS = ['SPADES', 'HEARTS', 'DIAMONDS', 'CLUBS'];
         const SUIT_SYMBOLS = { SPADES: '♠', HEARTS: '♥', DIAMONDS: '♦', CLUBS: '♣' };
         const RANKS = ['7', '8', '9', 'J', 'Q', 'K', '10', 'A'];
         const RANK_VALUES = { '7': 7, '8': 8, '9': 9, 'J': 10, 'Q': 11, 'K': 12, '10': 13, 'A': 14 };
+        const PLAYER_NAMES = ['ඔබ', 'Sandu', 'Notiya (Partner)', 'Nima'];
 
-        // Positions: 0 = User, 1 = Sandu (Right), 2 = Notiya (Partner), 3 = Nima (Left)
         const POSITIONS = ['pos-user', 'pos-right', 'pos-partner', 'pos-left'];
 
         let deck = [];
         let hands = [[], [], [], []];
         let currentRound = 1;
         let trumpSuit = null;
-        let trumpChooser = 0; // Force Real Player for Round 1
+        let trumpChooser = 0;
         let currentPlayer = 0;
         let currentTrick = [];
+        let lastTrickData = null; // Stores last completed trick
+        let waitingForTouchToClear = false; // Prevents auto clear until touch
         let tricksWon = [0, 0];
         let tokens = [0, 0];
-        let isProcessingTurn = false; // Prevents crash / double card bug
+        let isProcessingTurn = false;
+        let pendingWinner = null;
 
         function createDeck() {
             deck = [];
@@ -374,13 +430,16 @@
         function initGame() {
             tricksWon = [0, 0];
             currentTrick = [];
+            lastTrickData = null;
+            waitingForTouchToClear = false;
+            pendingWinner = null;
+
             document.getElementById('center-area').innerHTML = '';
             document.getElementById('tricks-us').innerText = '0';
             document.getElementById('tricks-them').innerText = '0';
             
             createDeck();
 
-            // Deal first 4 cards
             hands = [[], [], [], []];
             for (let p = 0; p < 4; p++) {
                 hands[p] = deck.splice(0, 4);
@@ -388,7 +447,6 @@
 
             renderHands();
 
-            // First round always gives Real Player the trump choice
             if (currentRound === 1) {
                 trumpChooser = 0;
             }
@@ -411,7 +469,6 @@
         function startAfterTrump() {
             document.getElementById('trump-display').innerText = `${trumpSuit} ${SUIT_SYMBOLS[trumpSuit]}`;
             
-            // Deal remaining 4 cards
             for (let p = 0; p < 4; p++) {
                 hands[p].push(...deck.splice(0, 4));
             }
@@ -424,7 +481,7 @@
         function renderHands() {
             const userContainer = document.getElementById('user-cards');
             userContainer.innerHTML = '';
-            document.getElementById('user-hand-title').innerText = `ඔබේ කොළ (${hands[0].length}) (ඔබේ වාරය!)`;
+            document.getElementById('user-hand-title').innerText = `ඔබේ කොළ (${hands[0].length})`;
 
             hands[0].forEach((card, idx) => {
                 const el = document.createElement('div');
@@ -447,16 +504,21 @@
             });
         }
 
-        function updateStatus(msg) {
-            document.getElementById('status-msg').innerText = msg;
+        function updateStatus(msg, isNotice = false) {
+            const msgBox = document.getElementById('status-msg');
+            msgBox.innerText = msg;
+            if (isNotice) {
+                msgBox.classList.add('tap-notice');
+            } else {
+                msgBox.classList.remove('tap-notice');
+            }
         }
 
         function processTurn() {
-            if (isProcessingTurn) return;
+            if (isProcessingTurn || waitingForTouchToClear) return;
 
             if (currentTrick.length === 4) {
-                isProcessingTurn = true;
-                setTimeout(evaluateTrick, 1200);
+                evaluateTrick();
                 return;
             }
 
@@ -464,14 +526,13 @@
                 updateStatus(`ඔබේ වාරය! (${trumpSuit} ${SUIT_SYMBOLS[trumpSuit]} පාරක් දමන්න)`);
             } else {
                 isProcessingTurn = true;
-                const names = ['ඔබ', 'Sandu', 'Notiya', 'Nima'];
-                updateStatus(`${names[currentPlayer]} කොළයක් දමමින් සිටී...`);
+                updateStatus(`${PLAYER_NAMES[currentPlayer]} කොළයක් දමමින් සිටී...`);
                 setTimeout(playAITurn, 800);
             }
         }
 
         function playUserCard(cardIdx) {
-            if (currentPlayer !== 0 || isProcessingTurn) return;
+            if (currentPlayer !== 0 || isProcessingTurn || waitingForTouchToClear) return;
 
             const card = hands[0][cardIdx];
             
@@ -536,8 +597,15 @@
                 }
             }
 
-            const winner = winningPlay.player;
-            if (winner === 0 || winner === 2) {
+            pendingWinner = winningPlay.player;
+            
+            // Save last trick details before clearing
+            lastTrickData = {
+                cards: [...currentTrick],
+                winner: pendingWinner
+            };
+
+            if (pendingWinner === 0 || pendingWinner === 2) {
                 tricksWon[0]++;
                 document.getElementById('tricks-us').innerText = tricksWon[0];
             } else {
@@ -545,10 +613,19 @@
                 document.getElementById('tricks-them').innerText = tricksWon[1];
             }
 
+            // Set state to wait for user touch on the board
+            waitingForTouchToClear = true;
+            updateStatus(`🏆 ${PLAYER_NAMES[pendingWinner]} මෙම අත ජයග්‍රහණය කළා! (ඉදිරියට යාමට Board එක Touch කරන්න)`, true);
+        }
+
+        function handleTableClick() {
+            if (!waitingForTouchToClear) return;
+
+            // Clear table and move to next trick
             document.getElementById('center-area').innerHTML = '';
             currentTrick = [];
-            currentPlayer = winner;
-            isProcessingTurn = false;
+            currentPlayer = pendingWinner;
+            waitingForTouchToClear = false;
 
             if (hands[0].length === 0) {
                 if (tricksWon[0] > tricksWon[1]) {
@@ -566,6 +643,38 @@
             } else {
                 processTurn();
             }
+        }
+
+        // Show Last Trick Feature
+        function showLastTrick() {
+            const container = document.getElementById('last-trick-cards');
+            const winnerEl = document.getElementById('last-trick-winner');
+            container.innerHTML = '';
+
+            if (!lastTrickData) {
+                alert("තවම වටයක් (අතක්) අවසන් වී නොමැත!");
+                return;
+            }
+
+            lastTrickData.cards.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'last-trick-item';
+                const isRed = item.card.suit === 'HEARTS' || item.card.suit === 'DIAMONDS';
+                div.innerHTML = `
+                    <div style="font-weight:bold; color: #1fa370;">${PLAYER_NAMES[item.player]}</div>
+                    <div style="font-size: 16px; color: ${isRed ? '#ff5555' : '#ffffff'}">
+                        ${item.card.rank} ${SUIT_SYMBOLS[item.card.suit]}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            winnerEl.innerText = `ජයග්‍රාහකයා: ${PLAYER_NAMES[lastTrickData.winner]}`;
+            document.getElementById('last-trick-modal').style.display = 'flex';
+        }
+
+        function closeLastTrickModal() {
+            document.getElementById('last-trick-modal').style.display = 'none';
         }
 
         window.onload = initGame;
