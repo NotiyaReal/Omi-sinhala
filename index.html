@@ -4,7 +4,272 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OMI Card Game</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #05291b;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: #0b4931;
+            min-height: 100vh;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Header UI */
+        .header-card {
+            background: #106343;
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #1fa370;
+        }
+
+        .trophy-title {
+            color: #ffcc00;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .tokens-info {
+            font-size: 13px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            gap: 8px;
+        }
+
+        .tricks-count, .trump-info {
+            background: #083825;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+        }
+
+        .trump-info {
+            color: #4cd995;
+        }
+
+        .message-box {
+            background: #083825;
+            border: 1px solid #147a52;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        /* Table Area */
+        .game-table {
+            position: relative;
+            height: 340px;
+            margin: 10px 0;
+            border-radius: 16px;
+            background: #093f2a;
+            border: 2px solid #0f5c3e;
+        }
+
+        .player-slot {
+            position: absolute;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .player-label {
+            background: #083825;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            border: 1px solid #1fa370;
+        }
+
+        .partner { top: 10px; left: 50%; transform: translateX(-50%); }
+        .left-opp { left: 10px; top: 40%; transform: translateY(-50%); }
+        .right-opp { right: 10px; top: 40%; transform: translateY(-50%); }
+
+        .card-backs {
+            display: flex;
+            gap: 3px;
+            margin-top: 5px;
+            justify-content: center;
+        }
+
+        .card-back-item {
+            width: 14px;
+            height: 22px;
+            background: #1b4985;
+            border: 1px solid #ffffff;
+            border-radius: 2px;
+        }
+
+        .card-backs.vertical {
+            flex-direction: column;
+        }
+
+        /* Middle Play Area (Fixing Positions to Match Green Boxes) */
+        .center-play-area {
+            position: absolute;
+            top: 52%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 210px;
+            height: 210px;
+        }
+
+        .played-card {
+            position: absolute;
+            width: 58px;
+            height: 85px;
+            background: white;
+            color: black;
+            border-radius: 6px;
+            border: 1px solid #888;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .played-card.red { color: #d00; }
+
+        /* Exact Positions for Each Player's Played Card */
+        .played-card.pos-user {
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .played-card.pos-partner {
+            top: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .played-card.pos-left {
+            left: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .played-card.pos-right {
+            right: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* User Hand */
+        .user-hand-wrapper {
+            background: #083825;
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .hand-title {
+            font-size: 12px;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .user-cards {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .hand-card {
+            width: 52px;
+            height: 78px;
+            background: white;
+            color: black;
+            border-radius: 6px;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .hand-card.red { color: #d00; }
+        .hand-card:hover { transform: translateY(-4px); }
+
+        /* Trump Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: #0d5438;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #20a16e;
+            width: 85%;
+            max-width: 320px;
+        }
+
+        .suit-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .suit-options button {
+            padding: 12px;
+            background: #13724c;
+            color: white;
+            border: 1px solid #1fa370;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .suit-options button:hover {
+            background: #1fa370;
+        }
+    </style>
 </head>
 <body>
     <div class="game-container">
@@ -49,10 +314,8 @@
                 <div class="card-backs vertical" id="cards-right"></div>
             </div>
 
-            <!-- Middle Cards Drop Area (Green Box Alignment) -->
-            <div class="center-play-area" id="center-area">
-                <!-- Played cards will appear here dynamically -->
-            </div>
+            <!-- Middle Cards Drop Area -->
+            <div class="center-play-area" id="center-area"></div>
         </div>
 
         <!-- Real Player Hand (Bottom) -->
@@ -62,7 +325,7 @@
         </div>
     </div>
 
-    <!-- Trump Selection Modal for First Round -->
+    <!-- Trump Selection Modal -->
     <div class="modal-overlay" id="trump-modal">
         <div class="modal-content">
             <h3>තුරුම්පු (Trump) තෝරන්න!</h3>
@@ -75,6 +338,237 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const SUITS = ['SPADES', 'HEARTS', 'DIAMONDS', 'CLUBS'];
+        const SUIT_SYMBOLS = { SPADES: '♠', HEARTS: '♥', DIAMONDS: '♦', CLUBS: '♣' };
+        const RANKS = ['7', '8', '9', 'J', 'Q', 'K', '10', 'A'];
+        const RANK_VALUES = { '7': 7, '8': 8, '9': 9, 'J': 10, 'Q': 11, 'K': 12, '10': 13, 'A': 14 };
+
+        // Positions: 0 = User, 1 = Sandu (Right), 2 = Notiya (Partner), 3 = Nima (Left)
+        const POSITIONS = ['pos-user', 'pos-right', 'pos-partner', 'pos-left'];
+
+        let deck = [];
+        let hands = [[], [], [], []];
+        let currentRound = 1;
+        let trumpSuit = null;
+        let trumpChooser = 0; // Force Real Player for Round 1
+        let currentPlayer = 0;
+        let currentTrick = [];
+        let tricksWon = [0, 0];
+        let tokens = [0, 0];
+        let isProcessingTurn = false; // Prevents crash / double card bug
+
+        function createDeck() {
+            deck = [];
+            for (let suit of SUITS) {
+                for (let rank of RANKS) {
+                    deck.push({ suit, rank, val: RANK_VALUES[rank] });
+                }
+            }
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function initGame() {
+            tricksWon = [0, 0];
+            currentTrick = [];
+            document.getElementById('center-area').innerHTML = '';
+            document.getElementById('tricks-us').innerText = '0';
+            document.getElementById('tricks-them').innerText = '0';
+            
+            createDeck();
+
+            // Deal first 4 cards
+            hands = [[], [], [], []];
+            for (let p = 0; p < 4; p++) {
+                hands[p] = deck.splice(0, 4);
+            }
+
+            renderHands();
+
+            // First round always gives Real Player the trump choice
+            if (currentRound === 1) {
+                trumpChooser = 0;
+            }
+
+            if (trumpChooser === 0) {
+                document.getElementById('trump-modal').style.display = 'flex';
+                updateStatus("ඔබේ වාරය! පළමු වටයේ තුරුම්පු තෝරන්න.");
+            } else {
+                trumpSuit = hands[trumpChooser][0].suit;
+                startAfterTrump();
+            }
+        }
+
+        function userSelectTrump(suit) {
+            trumpSuit = suit;
+            document.getElementById('trump-modal').style.display = 'none';
+            startAfterTrump();
+        }
+
+        function startAfterTrump() {
+            document.getElementById('trump-display').innerText = `${trumpSuit} ${SUIT_SYMBOLS[trumpSuit]}`;
+            
+            // Deal remaining 4 cards
+            for (let p = 0; p < 4; p++) {
+                hands[p].push(...deck.splice(0, 4));
+            }
+
+            renderHands();
+            currentPlayer = trumpChooser;
+            processTurn();
+        }
+
+        function renderHands() {
+            const userContainer = document.getElementById('user-cards');
+            userContainer.innerHTML = '';
+            document.getElementById('user-hand-title').innerText = `ඔබේ කොළ (${hands[0].length}) (ඔබේ වාරය!)`;
+
+            hands[0].forEach((card, idx) => {
+                const el = document.createElement('div');
+                const isRed = card.suit === 'HEARTS' || card.suit === 'DIAMONDS';
+                el.className = `hand-card ${isRed ? 'red' : ''}`;
+                el.innerHTML = `<div>${card.rank}</div><div>${SUIT_SYMBOLS[card.suit]}</div>`;
+                el.onclick = () => playUserCard(idx);
+                userContainer.appendChild(el);
+            });
+
+            const botSlots = ['cards-right', 'cards-partner', 'cards-left'];
+            [1, 2, 3].forEach(pIdx => {
+                const slotEl = document.getElementById(botSlots[pIdx - 1]);
+                slotEl.innerHTML = '';
+                hands[pIdx].forEach(() => {
+                    const b = document.createElement('div');
+                    b.className = 'card-back-item';
+                    slotEl.appendChild(b);
+                });
+            });
+        }
+
+        function updateStatus(msg) {
+            document.getElementById('status-msg').innerText = msg;
+        }
+
+        function processTurn() {
+            if (isProcessingTurn) return;
+
+            if (currentTrick.length === 4) {
+                isProcessingTurn = true;
+                setTimeout(evaluateTrick, 1200);
+                return;
+            }
+
+            if (currentPlayer === 0) {
+                updateStatus(`ඔබේ වාරය! (${trumpSuit} ${SUIT_SYMBOLS[trumpSuit]} පාරක් දමන්න)`);
+            } else {
+                isProcessingTurn = true;
+                const names = ['ඔබ', 'Sandu', 'Notiya', 'Nima'];
+                updateStatus(`${names[currentPlayer]} කොළයක් දමමින් සිටී...`);
+                setTimeout(playAITurn, 800);
+            }
+        }
+
+        function playUserCard(cardIdx) {
+            if (currentPlayer !== 0 || isProcessingTurn) return;
+
+            const card = hands[0][cardIdx];
+            
+            if (currentTrick.length > 0) {
+                const leadSuit = currentTrick[0].card.suit;
+                const hasLeadSuit = hands[0].some(c => c.suit === leadSuit);
+                if (hasLeadSuit && card.suit !== leadSuit) {
+                    alert(`ඔබ මුලින් දැමූ පාට (${leadSuit}) දැමිය යුතුය!`);
+                    return;
+                }
+            }
+
+            hands[0].splice(cardIdx, 1);
+            executePlayCard(0, card);
+        }
+
+        function playAITurn() {
+            let validCards = [...hands[currentPlayer]];
+            
+            if (currentTrick.length > 0) {
+                const leadSuit = currentTrick[0].card.suit;
+                const sameSuitCards = hands[currentPlayer].filter(c => c.suit === leadSuit);
+                if (sameSuitCards.length > 0) validCards = sameSuitCards;
+            }
+
+            const card = validCards[Math.floor(Math.random() * validCards.length)];
+            const idx = hands[currentPlayer].indexOf(card);
+            hands[currentPlayer].splice(idx, 1);
+
+            executePlayCard(currentPlayer, card);
+        }
+
+        function executePlayCard(playerIdx, card) {
+            currentTrick.push({ player: playerIdx, card });
+            
+            const centerArea = document.getElementById('center-area');
+            const cardEl = document.createElement('div');
+            const isRed = card.suit === 'HEARTS' || card.suit === 'DIAMONDS';
+            cardEl.className = `played-card ${POSITIONS[playerIdx]} ${isRed ? 'red' : ''}`;
+            cardEl.innerHTML = `<div>${card.rank}</div><div>${SUIT_SYMBOLS[card.suit]}</div>`;
+            centerArea.appendChild(cardEl);
+
+            renderHands();
+
+            currentPlayer = (currentPlayer + 1) % 4;
+            isProcessingTurn = false;
+            processTurn();
+        }
+
+        function evaluateTrick() {
+            let winningPlay = currentTrick[0];
+
+            for (let i = 1; i < currentTrick.length; i++) {
+                const play = currentTrick[i];
+                
+                if (play.card.suit === winningPlay.card.suit) {
+                    if (play.card.val > winningPlay.card.val) {
+                        winningPlay = play;
+                    }
+                } else if (play.card.suit === trumpSuit && winningPlay.card.suit !== trumpSuit) {
+                    winningPlay = play;
+                }
+            }
+
+            const winner = winningPlay.player;
+            if (winner === 0 || winner === 2) {
+                tricksWon[0]++;
+                document.getElementById('tricks-us').innerText = tricksWon[0];
+            } else {
+                tricksWon[1]++;
+                document.getElementById('tricks-them').innerText = tricksWon[1];
+            }
+
+            document.getElementById('center-area').innerHTML = '';
+            currentTrick = [];
+            currentPlayer = winner;
+            isProcessingTurn = false;
+
+            if (hands[0].length === 0) {
+                if (tricksWon[0] > tricksWon[1]) {
+                    tokens[0]++;
+                    document.getElementById('team1-tokens').innerText = tokens[0];
+                    alert("ඔබගේ පිල මෙම වටය ජයග්‍රහණය කළා!");
+                } else {
+                    tokens[1]++;
+                    document.getElementById('team2-tokens').innerText = tokens[1];
+                    alert("ඉදිරි පිල මෙම වටය ජයග්‍රහණය කළා!");
+                }
+                currentRound++;
+                trumpChooser = (trumpChooser + 1) % 4;
+                initGame();
+            } else {
+                processTurn();
+            }
+        }
+
+        window.onload = initGame;
+    </script>
 </body>
-  </html>
+    </html>
