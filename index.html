@@ -100,12 +100,6 @@
             background: #b8860b;
             color: #000;
             font-weight: bold;
-            animation: blink 1s infinite alternate;
-        }
-
-        @keyframes blink {
-            from { opacity: 0.8; }
-            to { opacity: 1; }
         }
 
         /* Table Area */
@@ -289,7 +283,6 @@
             font-size: 14px;
         }
 
-        /* Last Trick Display Grid */
         .last-trick-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -394,10 +387,12 @@
     <script>
         const SUITS = ['SPADES', 'HEARTS', 'DIAMONDS', 'CLUBS'];
         const SUIT_SYMBOLS = { SPADES: '♠', HEARTS: '♥', DIAMONDS: '♦', CLUBS: '♣' };
-        const RANKS = ['7', '8', '9', 'J', 'Q', 'K', '10', 'A'];
-        const RANK_VALUES = { '7': 7, '8': 8, '9': 9, 'J': 10, 'Q': 11, 'K': 12, '10': 13, 'A': 14 };
+        
+        // Correct OMI Rank Hierarchy: 7 < 8 < 9 < 10 < J < Q < K < A
+        const RANKS = ['7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        const RANK_VALUES = { '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14 };
+        
         const PLAYER_NAMES = ['ඔබ', 'Sandu', 'Notiya (Partner)', 'Nima'];
-
         const POSITIONS = ['pos-user', 'pos-right', 'pos-partner', 'pos-left'];
 
         let deck = [];
@@ -407,8 +402,8 @@
         let trumpChooser = 0;
         let currentPlayer = 0;
         let currentTrick = [];
-        let lastTrickData = null; // Stores last completed trick
-        let waitingForTouchToClear = false; // Prevents auto clear until touch
+        let lastTrickData = null;
+        let waitingForTouchToClear = false;
         let tricksWon = [0, 0];
         let tokens = [0, 0];
         let isProcessingTurn = false;
@@ -582,24 +577,34 @@
             processTurn();
         }
 
+        // Fixed Trick Winner Calculation
         function evaluateTrick() {
             let winningPlay = currentTrick[0];
+            const leadSuit = currentTrick[0].card.suit;
 
             for (let i = 1; i < currentTrick.length; i++) {
                 const play = currentTrick[i];
-                
-                if (play.card.suit === winningPlay.card.suit) {
+
+                // 1. If played card is Trump and winning card is NOT Trump -> Trump wins
+                if (play.card.suit === trumpSuit && winningPlay.card.suit !== trumpSuit) {
+                    winningPlay = play;
+                }
+                // 2. If both are Trump -> Higher rank Trump wins
+                else if (play.card.suit === trumpSuit && winningPlay.card.suit === trumpSuit) {
                     if (play.card.val > winningPlay.card.val) {
                         winningPlay = play;
                     }
-                } else if (play.card.suit === trumpSuit && winningPlay.card.suit !== trumpSuit) {
-                    winningPlay = play;
+                }
+                // 3. If both follow Lead Suit -> Higher rank Lead Suit wins
+                else if (play.card.suit === leadSuit && winningPlay.card.suit === leadSuit) {
+                    if (play.card.val > winningPlay.card.val) {
+                        winningPlay = play;
+                    }
                 }
             }
 
             pendingWinner = winningPlay.player;
             
-            // Save last trick details before clearing
             lastTrickData = {
                 cards: [...currentTrick],
                 winner: pendingWinner
@@ -613,7 +618,6 @@
                 document.getElementById('tricks-them').innerText = tricksWon[1];
             }
 
-            // Set state to wait for user touch on the board
             waitingForTouchToClear = true;
             updateStatus(`🏆 ${PLAYER_NAMES[pendingWinner]} මෙම අත ජයග්‍රහණය කළා! (ඉදිරියට යාමට Board එක Touch කරන්න)`, true);
         }
@@ -621,7 +625,6 @@
         function handleTableClick() {
             if (!waitingForTouchToClear) return;
 
-            // Clear table and move to next trick
             document.getElementById('center-area').innerHTML = '';
             currentTrick = [];
             currentPlayer = pendingWinner;
@@ -645,7 +648,6 @@
             }
         }
 
-        // Show Last Trick Feature
         function showLastTrick() {
             const container = document.getElementById('last-trick-cards');
             const winnerEl = document.getElementById('last-trick-winner');
@@ -680,4 +682,4 @@
         window.onload = initGame;
     </script>
 </body>
-    </html>
+            </html>
