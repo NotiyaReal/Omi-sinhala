@@ -111,7 +111,7 @@
         /* Table Area */
         .game-table {
             position: relative;
-            height: 330px;
+            height: 350px;
             margin: 10px 0;
             border-radius: 16px;
             background: #093f2a;
@@ -123,6 +123,9 @@
             position: absolute;
             text-align: center;
             z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .player-label {
@@ -135,9 +138,21 @@
             display: inline-block;
         }
 
-        .partner { top: 10px; left: 50%; transform: translateX(-50%); }
-        .left-opp { left: 8px; top: 35%; transform: translateY(-50%); }
-        .right-opp { right: 8px; top: 35%; transform: translateY(-50%); }
+        .partner { 
+            top: 10px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+        }
+
+        .left-opp { 
+            left: 12px; 
+            top: 20px; 
+        }
+
+        .right-opp { 
+            right: 12px; 
+            top: 20px; 
+        }
 
         .card-backs {
             display: flex;
@@ -147,17 +162,26 @@
         }
 
         .card-back-item {
-            width: 12px;
-            height: 18px;
+            width: 14px;
+            height: 20px;
             background: #1b4985;
             border: 1px solid #ffffff;
             border-radius: 2px;
         }
 
+        /* Nima & Sandu Vertical Card Stack */
         .card-backs.vertical {
-            flex-direction: row;
-            max-width: 110px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 3px;
+            margin-top: 6px;
+        }
+
+        .card-backs.vertical .card-back-item {
+            width: 22px;
+            height: 14px;
+            background: #1b4985;
+            border: 1px solid #ffffff;
+            border-radius: 2px;
         }
 
         /* Middle Play Area */
@@ -166,14 +190,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
+            width: 180px;
+            height: 180px;
         }
 
         .played-card {
             position: absolute;
-            width: 54px;
-            height: 80px;
+            width: 52px;
+            height: 76px;
             background: white;
             color: black;
             border-radius: 6px;
@@ -736,4 +760,4 @@
         window.onload = initGame;
     </script>
 </body>
-                </html>
+            </html>
