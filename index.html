@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NR OMI Card Game</title>
+    <title>OMI Card Game</title>
     <style>
         * {
             box-sizing: border-box;
@@ -314,7 +314,7 @@
     <div class="game-container">
         <!-- Top Score Bar -->
         <div class="header-card">
-            <div class="trophy-title">🏆 NR OMI CARD GAME</div>
+            <div class="trophy-title">🏆 OMI CARD GAME</div>
             <div class="tokens-info">
                 Tokens - ඔබ & Notiya: <span id="team1-tokens">0</span> | Sandu & Nima: <span id="team2-tokens">0</span>
             </div>
@@ -527,7 +527,7 @@
             }
 
             if (currentPlayer === 0) {
-                updateStatus(`ඔබේ වාරය! (තුරුම්පු ${trumpSuit} ${SUIT_SYMBOLS[trumpSuit]}) කොලයක් දමන්න)`;
+                updateStatus(`ඔබේ වාරය! (${trumpSuit} ${SUIT_SYMBOLS[trumpSuit]} පාරක් දමන්න)`);
             } else {
                 isProcessingTurn = true;
                 updateStatus(`${PLAYER_NAMES[currentPlayer]} කොළයක් දමමින් සිටී...`);
@@ -544,7 +544,7 @@
                 const leadSuit = currentTrick[0].card.suit;
                 const hasLeadSuit = hands[0].some(c => c.suit === leadSuit);
                 if (hasLeadSuit && card.suit !== leadSuit) {
-                    alert(`ඔබ මුලින් දැමූ වංශයට (${leadSuit}) දැමිය යුතුය!`);
+                    alert(`ඔබ මුලින් දැමූ පාට (${leadSuit}) දැමිය යුතුය!`);
                     return;
                 }
             }
@@ -685,4 +685,4 @@
         window.onload = initGame;
     </script>
 </body>
-                                          </html>
+</html>.
