@@ -13,14 +13,14 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         @keyframes floatCard {
-            0% { transform: scale(0.8) translateY(10px); opacity: 0; }
-            100% { transform: scale(1) translateY(0); opacity: 1; }
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
         .animate-card {
-            animation: floatCard 0.3s ease-out forwards;
+            animation: floatCard 0.4s ease-out forwards;
         }
         .card-shadow {
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
         }
     </style>
 </head>
@@ -56,11 +56,12 @@
             { rank: 'A', value: 14 }
         ];
 
+        // Updated Player Names
         const PLAYER_NAMES = {
             0: 'ඔබ (You)',
-            1: 'AI East',
+            1: 'Sandu',
             2: 'Notiya (Partner)',
-            3: 'AI West'
+            3: 'Nima'
         };
 
         const createDeck = () => {
@@ -92,7 +93,7 @@
             const [gameState, setGameState] = useState('SELECT_TRUMP'); // SELECT_TRUMP, PLAYING, ROUND_END
             const [teamScore, setTeamScore] = useState({ us: 0, them: 0 });
             const [tokens, setTokens] = useState({ us: 0, them: 0 });
-            const [tipMessage, setTipMessage] = useState('ක්‍රීඩාව ආරම්භ කිරීමට තුරුම්පුව (Trump) තෝරන්න.');
+            const [statusMessage, setStatusMessage] = useState('ක්‍රීඩාව ආරම්භ කිරීමට තුරුම්පුව (Trump) තෝරන්න.');
 
             // Start New Round
             const startNewRound = () => {
@@ -115,11 +116,12 @@
 
                 if (nextMaker === 0) {
                     setGameState('SELECT_TRUMP');
-                    setTipMessage('ඔබ පළමු කොළ 4 ලබා ගත්තා. තුරුම්පු පාටක් තෝරන්න!');
+                    setStatusMessage('ඔබ පළමු කොළ 4 ලබා ගත්තා. තුරුම්පු පාටක් තෝරන්න!');
                 } else {
                     setGameState('SELECT_TRUMP');
-                    setTipMessage(`${PLAYER_NAMES[nextMaker]} තුරුම්පු තෝරමින් සිටී...`);
-                    setTimeout(() => autoSelectTrumpForAI(initialHands[nextMaker], nextMaker), 1200);
+                    setStatusMessage(`${PLAYER_NAMES[nextMaker]} තුරුම්පු තෝරමින් සිටී...`);
+                    // Slower AI Trump Selection
+                    setTimeout(() => autoSelectTrumpForAI(initialHands[nextMaker], nextMaker), 2200);
                 }
             };
 
@@ -147,7 +149,6 @@
                 setTrump(selectedTrump);
                 const fullDeck = shuffleDeck(createDeck());
                 
-                // Distribute 8 cards each
                 setHands({
                     0: fullDeck.slice(0, 8),
                     1: fullDeck.slice(8, 16),
@@ -157,7 +158,7 @@
 
                 setGameState('PLAYING');
                 setCurrentTurn(maker);
-                setTipMessage(`තුරුම්පුව: ${selectedTrump} ${SUIT_SYMBOLS[selectedTrump]}. පළමු කොළය දැමීමට ${PLAYER_NAMES[maker]} ට වාරය!`);
+                setStatusMessage(`තුරුම්පුව: ${selectedTrump} ${SUIT_SYMBOLS[selectedTrump]} | පළමු කොළය දැමීමට ${PLAYER_NAMES[maker]} ට වාරය.`);
             };
 
             // Handle Human Trump Selection
@@ -172,35 +173,36 @@
                 return matchSuit.length > 0 ? matchSuit : playerHand;
             };
 
-            // Handle AI and Human turns
+            // Handle AI and Human turns with SLOWER speed
             useEffect(() => {
                 if (gameState !== 'PLAYING') return;
 
                 if (currentTurn !== 0) {
+                    setStatusMessage(`${PLAYER_NAMES[currentTurn]} කොළයක් දමමින් සිටී...`);
+                    // Increased delay to 2200ms so player can easily follow
                     const timer = setTimeout(() => {
                         playAITurn(currentTurn);
-                    }, 1000);
+                    }, 2200);
                     return () => clearTimeout(timer);
                 } else {
-                    updateHumanTip();
+                    updateTurnStatus();
                 }
             }, [currentTurn, gameState, currentTrick]);
 
-            const updateHumanTip = () => {
+            // Simplified Turn Status Message (No Strategy Advice)
+            const updateTurnStatus = () => {
                 if (currentTrick.length === 0) {
-                    setTipMessage('ඔබේ වාරය! ලොකු කොළයකින් වටය පටන් ගන්න බලන්න.');
-                    return;
-                }
-                const myHand = hands[0];
-                const leadCard = currentTrick[0].card;
-                const hasLeadSuit = myHand.some(c => c.suit === leadCard.suit);
-
-                if (hasLeadSuit) {
-                    setTipMessage(`අනිවාර්යයෙන්ම ${leadCard.suit} ${SUIT_SYMBOLS[leadCard.suit]} පාටින් එකක් දමන්න.`);
-                } else if (trump && myHand.some(c => c.suit === trump)) {
-                    setTipMessage('ඔබ ළඟ අදාළ පාට නැත! තුරුම්පුවක් (Trump) දමා වටය කපා දිනාගත හැක.');
+                    setStatusMessage('ඔබේ වාරය! කැමති කොළයක් දමන්න.');
                 } else {
-                    setTipMessage('ඔබ ළඟ අදාළ පාට හෝ තුරුම්පු නැත. අඩුවැඩියක් නොමැති කොළයක් දමන්න.');
+                    const leadCard = currentTrick[0].card;
+                    const myHand = hands[0];
+                    const hasLeadSuit = myHand.some(c => c.suit === leadCard.suit);
+
+                    if (hasLeadSuit) {
+                        setStatusMessage(`ඔබේ වාරය! (${leadCard.suit} ${SUIT_SYMBOLS[leadCard.suit]} පාටින් කොළයක් දමන්න)`);
+                    } else {
+                        setStatusMessage('ඔබේ වාරය! (අදාළ පාට නොමැත, කැමති කොළයක් දමන්න)');
+                    }
                 }
             };
 
@@ -218,7 +220,8 @@
                 }
 
                 if (newTrick.length === 4) {
-                    setTimeout(() => evaluateTrickWinner(newTrick, activeLead), 1400);
+                    // Increased trick evaluation time to 2800ms so all 4 played cards are clearly visible on table
+                    setTimeout(() => evaluateTrickWinner(newTrick, activeLead), 2800);
                 } else {
                     setCurrentTurn(((player + 1) % 4));
                 }
@@ -257,7 +260,7 @@
                 const newThem = !isUs ? teamScore.them + 1 : teamScore.them;
 
                 setTeamScore({ us: newUs, them: newThem });
-                setTipMessage(`මෙම වටය ${PLAYER_NAMES[winner]} ජයග්‍රහණය කළා!`);
+                setStatusMessage(`මෙම වටය ${PLAYER_NAMES[winner]} ජයග්‍රහණය කළා!`);
 
                 setCurrentTrick([]);
                 setLeadSuit(null);
@@ -276,12 +279,12 @@
                     msg = `ඔබ සහ Notiya අත දිනුවා! (${usTricks} - ${themTricks})`;
                     setTokens(prev => ({ ...prev, us: prev.us + (usTricks >= 7 ? 2 : 1) }));
                 } else if (themTricks > usTricks) {
-                    msg = `AI කණ්ඩායම අත දිනුවා! (${themTricks} - ${usTricks})`;
+                    msg = `Sandu & Nima අත දිනුවා! (${themTricks} - ${usTricks})`;
                     setTokens(prev => ({ ...prev, them: prev.them + (themTricks >= 7 ? 2 : 1) }));
                 } else {
                     msg = 'සමබර වටයක්! (4 - 4)';
                 }
-                setTipMessage(msg);
+                setStatusMessage(msg);
             };
 
             const handleHumanCardClick = (card) => {
@@ -291,30 +294,46 @@
                 const isValid = validCards.some(c => c.id === card.id);
 
                 if (!isValid) {
-                    setTipMessage(`වැරදි කොළයක්! මුලින්ම ${leadSuit} ${SUIT_SYMBOLS[leadSuit]} කොළයක් දමන්න.`);
+                    setStatusMessage(`වැරදි කොළයක්! ${leadSuit} ${SUIT_SYMBOLS[leadSuit]} පාටින් කොළයක් දමන්න.`);
                     return;
                 }
 
                 playCard(0, card);
             };
 
+            // Player position styling for played cards in the center table
+            const getCardPositionStyle = (player) => {
+                switch(player) {
+                    case 0: // You (South)
+                        return 'bottom-3 left-1/2 -translate-x-1/2';
+                    case 1: // Sandu (East/Right)
+                        return 'right-3 top-1/2 -translate-y-1/2';
+                    case 2: // Notiya (North/Top)
+                        return 'top-3 left-1/2 -translate-x-1/2';
+                    case 3: // Nima (West/Left)
+                        return 'left-3 top-1/2 -translate-y-1/2';
+                    default:
+                        return '';
+                }
+            };
+
             return (
-                <div className="min-h-screen flex flex-col items-center justify-between p-4 max-w-4xl mx-auto">
+                <div className="min-h-screen flex flex-col items-center justify-between p-3 sm:p-4 max-w-4xl mx-auto">
                     {/* SCOREBOARD */}
-                    <header className="w-full bg-emerald-900/90 backdrop-blur rounded-2xl p-4 border border-emerald-700 shadow-2xl flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <header className="w-full bg-emerald-900/90 backdrop-blur rounded-2xl p-3 sm:p-4 border border-emerald-700 shadow-2xl flex flex-col sm:flex-row justify-between items-center gap-3">
                         <div className="flex items-center space-x-3">
                             <div className="bg-amber-500 text-black p-2 rounded-xl text-xl font-black">🏆</div>
                             <div>
-                                <h1 className="font-extrabold text-xl tracking-wide text-amber-400">OMI CARD GAME</h1>
+                                <h1 className="font-extrabold text-lg sm:text-xl tracking-wide text-amber-400">OMI CARD GAME</h1>
                                 <p className="text-xs text-emerald-200">
-                                    Tokens - ඔබ & Notiya: <span className="font-bold text-yellow-300">{tokens.us}</span> | AI: <span className="font-bold text-red-400">{tokens.them}</span>
+                                    Tokens - ඔබ & Notiya: <span className="font-bold text-yellow-300">{tokens.us}</span> | Sandu & Nima: <span className="font-bold text-red-400">{tokens.them}</span>
                                 </p>
                             </div>
                         </div>
 
                         <div className="flex items-center space-x-4 bg-emerald-950 px-4 py-2 rounded-xl border border-emerald-800">
                             <div className="text-sm">
-                                Tricks - <span className="text-yellow-300 font-bold">ඔබලා: {teamScore.us}</span> | <span className="text-red-400 font-bold">AI: {teamScore.them}</span>
+                                Tricks - <span className="text-yellow-300 font-bold">ඔබලා: {teamScore.us}</span> | <span className="text-red-400 font-bold">ඔවුන්: {teamScore.them}</span>
                             </div>
                             {trump && (
                                 <div className="bg-emerald-800 px-3 py-1 rounded-lg text-xs font-bold border border-emerald-600 flex items-center space-x-1">
@@ -325,68 +344,70 @@
                         </div>
                     </header>
 
-                    {/* SINHALA TIP DISPLAY */}
-                    <div className="w-full bg-amber-500/20 border border-amber-500/40 rounded-xl p-3 my-3 flex items-center space-x-3 backdrop-blur text-amber-200 text-sm font-medium">
-                        <span className="text-amber-400 text-lg">💡</span>
-                        <span>{tipMessage}</span>
+                    {/* STATUS DISPLAY */}
+                    <div className="w-full bg-emerald-900/60 border border-emerald-700/60 rounded-xl p-3 my-2 flex items-center space-x-3 backdrop-blur text-emerald-100 text-sm font-medium">
+                        <span className="text-amber-400 text-lg">📢</span>
+                        <span>{statusMessage}</span>
                     </div>
 
                     {/* GAME TABLE */}
-                    <main className="relative w-full h-[400px] bg-emerald-800 rounded-3xl border-8 border-emerald-900 shadow-2xl flex items-center justify-center overflow-hidden">
-                        {/* NOTIYA (NORTH) */}
-                        <div className="absolute top-3 flex flex-col items-center">
+                    <main className="relative w-full h-[430px] bg-emerald-800 rounded-3xl border-8 border-emerald-900 shadow-2xl flex items-center justify-center overflow-hidden">
+                        
+                        {/* NOTIYA (NORTH / TOP) */}
+                        <div className="absolute top-2 flex flex-col items-center z-10">
                             <span className={`text-xs font-bold px-3 py-1 rounded-full ${currentTurn === 2 ? 'bg-yellow-400 text-black animate-pulse' : 'bg-emerald-950 text-emerald-200'}`}>
                                 Notiya (Partner)
                             </span>
                             <div className="flex space-x-1 mt-1">
                                 {hands[2].map((_, i) => (
-                                    <div key={i} className="w-6 h-9 bg-blue-900 rounded border border-blue-400 shadow" />
+                                    <div key={i} className="w-5 h-8 bg-blue-900 rounded border border-blue-400 shadow" />
                                 ))}
                             </div>
                         </div>
 
-                        {/* AI WEST (LEFT) */}
-                        <div className="absolute left-3 flex flex-col items-center">
+                        {/* NIMA (WEST / LEFT) */}
+                        <div className="absolute left-2 flex flex-col items-center z-10">
                             <span className={`text-xs font-bold px-3 py-1 rounded-full ${currentTurn === 3 ? 'bg-yellow-400 text-black animate-pulse' : 'bg-emerald-950 text-emerald-200'}`}>
-                                AI West
+                                Nima
                             </span>
                             <div className="flex flex-col space-y-1 mt-1">
                                 {hands[3].map((_, i) => (
-                                    <div key={i} className="w-9 h-6 bg-red-900 rounded border border-red-400 shadow" />
+                                    <div key={i} className="w-8 h-5 bg-red-900 rounded border border-red-400 shadow" />
                                 ))}
                             </div>
                         </div>
 
-                        {/* AI EAST (RIGHT) */}
-                        <div className="absolute right-3 flex flex-col items-center">
+                        {/* SANDU (EAST / RIGHT) */}
+                        <div className="absolute right-2 flex flex-col items-center z-10">
                             <span className={`text-xs font-bold px-3 py-1 rounded-full ${currentTurn === 1 ? 'bg-yellow-400 text-black animate-pulse' : 'bg-emerald-950 text-emerald-200'}`}>
-                                AI East
+                                Sandu
                             </span>
                             <div className="flex flex-col space-y-1 mt-1">
                                 {hands[1].map((_, i) => (
-                                    <div key={i} className="w-9 h-6 bg-red-900 rounded border border-red-400 shadow" />
+                                    <div key={i} className="w-8 h-5 bg-red-900 rounded border border-red-400 shadow" />
                                 ))}
                             </div>
                         </div>
 
-                        {/* PLAY AREA (TRICK DISPLAY) */}
-                        <div className="relative w-44 h-44 bg-emerald-900/50 rounded-full border border-emerald-700/50 flex items-center justify-center">
+                        {/* PLAY AREA (4 DISTINCT SIDE POSITIONS FOR PLAYED CARDS) */}
+                        <div className="relative w-72 h-72 sm:w-80 sm:h-80 bg-emerald-900/40 rounded-3xl border border-emerald-700/40 shadow-inner p-2">
                             {currentTrick.map(({ player, card }) => {
-                                const posClasses = {
-                                    0: 'translate-y-8',  // You
-                                    1: 'translate-x-8',  // East
-                                    2: '-translate-y-8', // Notiya
-                                    3: '-translate-x-8'  // West
-                                };
+                                const posStyle = getCardPositionStyle(player);
 
                                 return (
                                     <div
                                         key={card.id}
-                                        className={`absolute w-14 h-20 bg-white rounded-lg border-2 border-gray-300 card-shadow flex flex-col items-center justify-between p-1 transition-all duration-300 animate-card ${posClasses[player]}`}
+                                        className={`absolute w-14 h-20 sm:w-16 sm:h-24 bg-white rounded-xl border-2 border-gray-300 card-shadow flex flex-col items-center justify-between p-1.5 animate-card transition-all duration-300 ${posStyle}`}
                                     >
-                                        <span className={`text-xs font-bold ${SUIT_COLORS[card.suit]}`}>{card.rank}</span>
-                                        <span className={`text-xl ${SUIT_COLORS[card.suit]}`}>{SUIT_SYMBOLS[card.suit]}</span>
-                                        <span className={`text-xs font-bold ${SUIT_COLORS[card.suit]}`}>{card.rank}</span>
+                                        <div className={`w-full flex justify-between items-center text-xs font-bold ${SUIT_COLORS[card.suit]}`}>
+                                            <span>{card.rank}</span>
+                                            <span>{SUIT_SYMBOLS[card.suit]}</span>
+                                        </div>
+                                        <span className={`text-2xl sm:text-3xl ${SUIT_COLORS[card.suit]}`}>{SUIT_SYMBOLS[card.suit]}</span>
+                                        <div className={`w-full flex justify-between items-center text-xs font-bold ${SUIT_COLORS[card.suit]} rotate-180`}>
+                                            <span>{card.rank}</span>
+                                            <span>{SUIT_SYMBOLS[card.suit]}</span>
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -415,7 +436,7 @@
                         {gameState === 'ROUND_END' && (
                             <div className="absolute inset-0 bg-black/85 backdrop-blur flex flex-col items-center justify-center p-4 z-20 text-center">
                                 <div className="text-5xl mb-2">🎉</div>
-                                <h2 className="text-2xl font-bold mb-2 text-amber-300">{tipMessage}</h2>
+                                <h2 className="text-2xl font-bold mb-2 text-amber-300">{statusMessage}</h2>
                                 <button
                                     onClick={startNewRound}
                                     className="mt-4 bg-amber-500 hover:bg-amber-400 text-black font-extrabold py-3 px-8 rounded-xl shadow-xl transition transform hover:scale-105"
@@ -466,4 +487,4 @@
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
-      </html>
+    </html>
